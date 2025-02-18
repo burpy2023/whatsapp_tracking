@@ -1,0 +1,130 @@
+<!-- index.html (Dark Theme) -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WhatsApp Group Messages</title>
+  <style>
+    /* Dark Theme Styles */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: #e0e0e0;
+      margin: 20px;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #4CAF50;
+      font-size: 28px;
+    }
+
+    .status {
+      font-size: 14px;
+      margin-bottom: 10px;
+      color: #bbbbbb;
+    }
+
+    .message-box {
+      height: 400px;
+      overflow-y: auto;
+      border: 1px solid #333;
+      padding: 10px;
+      margin-bottom: 20px;
+      background-color: #1e1e1e;
+      border-radius: 8px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+      color: #e0e0e0;
+    }
+
+    .message {
+      margin-bottom: 10px;
+      padding: 10px;
+      background-color: #292929;
+      color: #f0f0f0;
+      border-radius: 6px;
+      border: 1px solid #444;
+      transition: background-color 0.3s ease;
+    }
+
+    .message:hover {
+      background-color: #333;
+    }
+
+    .sender {
+      font-weight: bold;
+      color: #4CAF50;
+    }
+
+    /* Status Styles */
+    #status {
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    /* Scrollbar for Message Box */
+    .message-box::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .message-box::-webkit-scrollbar-thumb {
+      background-color: #555;
+      border-radius: 10px;
+    }
+
+    .message-box::-webkit-scrollbar-track {
+      background: #222;
+    }
+
+  </style>
+</head>
+<body>
+
+  <h1>📩 WhatsApp Group Messages</h1>
+  <div class="status">Status: <span id="status">Connecting...</span></div>
+  <div class="message-box" id="messageBox"></div>
+
+  <script>
+    const statusElement = document.getElementById('status');
+    const messageBox = document.getElementById('messageBox');
+
+    function addMessage(data) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'message';
+      
+      // Create HTML structure with group name
+      msgDiv.innerHTML = `
+        <div class="group-name">📱 ${data.groupName}</div>
+        <span class="sender">${data.sender}</span> (${data.timestamp}):<br>
+        ${data.message}
+      `;
+      
+      messageBox.prepend(msgDiv);
+    }
+
+    // WebSocket Connection to Backend
+    const socket = new WebSocket('ws://localhost:8080');
+
+    // On WebSocket Open
+    socket.onopen = () => {
+      statusElement.textContent = '✅ Connected';
+      statusElement.style.color = '#4CAF50';
+      console.log('Connected to WebSocket');
+    };
+
+    // On WebSocket Message
+    socket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.message) {
+          addMessage(data);  // Pass the entire data object
+        }
+      } catch (error) {
+        console.error('Error parsing message:', error);
+      }
+    };
+
+    // Previous WebSocket event handlers remain the same...
+  </script>
+
+</body>
+</html>
