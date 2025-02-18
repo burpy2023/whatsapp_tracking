@@ -2,5 +2,24 @@
   "dependencies": {
     "qrcode-terminal": "^0.12.0",
     "whatsapp-web.js": "^1.26.0"
-  }
+  },
+  "name": "whatsapp_tracking",
+  "version": "1.0.0",
+  "description": "Project to track messages on WhatsApp groups and alert if a message with the keywords is recieved",
+  "main": "server.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/burpy2023/whatsapp_tracking.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/burpy2023/whatsapp_tracking/issues"
+  },
+  "homepage": "https://github.com/burpy2023/whatsapp_tracking#readme"
 }
