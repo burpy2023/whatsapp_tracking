@@ -5,8 +5,10 @@ const { Client, LocalAuth } = require('whatsapp-web.js');
 const WebSocket = require('ws');
 const qrcode = require('qrcode-terminal');
 
-const wss = new WebSocket.Server({ port: 8080 });
-console.log('🚀 WebSocket server running on ws://localhost:8080');
+// ✅ Start WebSocket server
+const PORT = process.env.PORT || 8080;
+const wss = new WebSocket.Server({ port: PORT });
+console.log(`🚀 WebSocket server running on ws://localhost:${PORT}`);
 
 // ✅ Initialize WhatsApp Client
 const client = new Client({
@@ -39,10 +41,10 @@ function saveGroups() {
   }
 }
 
-// Load groups on startup
+// ✅ Load groups on startup (even if not filtering)
 loadGroups();
 
-// Handle WebSocket connections
+// ✅ Handle WebSocket connections
 wss.on('connection', (ws) => {
   console.log('✅ Client connected to WebSocket');
 
@@ -51,7 +53,7 @@ wss.on('connection', (ws) => {
       const data = JSON.parse(message);
       if (data.type === 'updateGroups') {
         groupsToMonitor = data.groups;
-        saveGroups(); // Save to JSON whenever updated
+        saveGroups();
         console.log(`✅ Tracking Groups Updated: ${groupsToMonitor.join(', ')}`);
       }
     } catch (error) {
@@ -59,43 +61,47 @@ wss.on('connection', (ws) => {
     }
   });
 
-  ws.send(JSON.stringify({ message: "Connected to WhatsApp WebSocket Server" }));
+  ws.send(JSON.stringify({ message: 'Connected to WhatsApp WebSocket Server' }));
 });
 
-// Broadcast function
+// ✅ Broadcast function to all WebSocket clients
 function broadcast(data) {
-  wss.clients.forEach(client => {
+  wss.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
       client.send(JSON.stringify(data));
     }
   });
 }
-  
-
 
 // ✅ Capture ALL messages (Groups + Private)
-client.on('message', async msg => {
+client.on('message', async (msg) => {
+  try {
     const chat = await msg.getChat();
     const messageText = msg.body.toLowerCase();
-  
-    // Show only messages containing "python"
-    if (messageText.includes("python")) {
+
+    // ✅ Show only messages containing "python"
+    if (messageText.includes('python')) {
+      const contact = await msg.getContact();
+      const senderName = contact.pushname || contact.name || msg._data.notifyName || 'Unknown';
+
       const messageData = {
-        group: chat.isGroup ? chat.name : "Private Chat",
-        sender: msg.author || msg.from,
+        groupName: chat.isGroup ? chat.name : 'Private Chat',
+        sender: senderName,
         message: msg.body,
         timestamp: new Date().toLocaleTimeString(),
+        isGroup: chat.isGroup,
       };
-  
-      console.log(`🐍 PYTHON FOUND [${chat.isGroup ? chat.name : 'Private Chat'}] ${msg.author || msg.from}: ${msg.body}`);
+
+      console.log(`🐍 PYTHON FOUND [${messageData.groupName}] ${messageData.sender}: ${msg.body}`);
       broadcast(messageData);
     }
-  });
+  } catch (error) {
+    console.error('❌ Error processing message:', error);
+  }
+});
 
-  
-
-// WhatsApp QR Code Handling
-client.on('qr', qr => {
+// ✅ WhatsApp QR Code Handling
+client.on('qr', (qr) => {
   qrcode.generate(qr, { small: true });
   console.log('Scan the QR code to log in');
 });
@@ -107,6 +113,15 @@ client.on('ready', () => {
 // ✅ Start WhatsApp Client
 client.initialize();
 
+// ✅ Graceful shutdown (Ctrl+C)
+process.on('SIGINT', () => {
+  console.log('\n🛑 Gracefully shutting down...');
+  client.destroy();
+  wss.close(() => {
+    console.log('✅ WebSocket server closed');
+    process.exit(0);
+  });
+});
 
 
 
