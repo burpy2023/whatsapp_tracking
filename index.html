@@ -85,6 +85,29 @@
     .message-box::-webkit-scrollbar-track {
       background: #222;
     }
+
+    /* 🟡 Kforce Message Style */
+    .message.kforce {
+      background-color: #4e4a00; /* dark yellow */
+      border: 1px solid #ffeb3b; /* bright yellow border */
+      color: #fff59d; /* light yellow text */
+    }
+
+    .message.kforce .group-name {
+      color: #ffeb3b;
+    }
+
+    .message.kforce .sender {
+      color: #ffe082;
+    }
+
+    .message.kforce .timestamp {
+      color: #fbc02d;
+    }
+
+    .message.kforce .message-content {
+      color: #fffde7;
+    }
   </style>
 </head>
 <body>
@@ -99,8 +122,12 @@
     function addMessage(data) {
       const msgDiv = document.createElement('div');
       msgDiv.className = 'message';
-      
-      // Replace line breaks with <br> tags
+
+      // 🟡 Add special class if Kforce message
+      if (data.groupName === 'Kforce Python Jobs') {
+        msgDiv.classList.add('kforce');
+      }
+
       const formattedMessage = data.message.replace(/\n/g, '<br>');
 
       msgDiv.innerHTML = `
@@ -111,10 +138,9 @@
         </div>
         <div class="message-content">${formattedMessage}</div>
       `;
-      
+
       messageBox.prepend(msgDiv);
     }
-
 
     const socket = new WebSocket('ws://localhost:8080');
 
@@ -139,7 +165,7 @@
     socket.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        if (data.groupName) {  // Check if it's a message with group data
+        if (data.groupName) {
           addMessage(data);
         }
       } catch (error) {
