@@ -4,6 +4,7 @@ const path = require('path');
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const WebSocket = require('ws');
 const qrcode = require('qrcode-terminal');
+// RESET AUTH FIX
 // rm -rf /mnt/c/coding\ projects/whatsapp_tracking/whatsapp_tracking/.wwebjs_auth/session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/rm -rf /mnt/c/coding\ projects/whatsapp_tracking/whatsapp_tracking/.wwebjs_auth
 // ✅ Start WebSocket server
 const PORT = process.env.PORT || 8080;
